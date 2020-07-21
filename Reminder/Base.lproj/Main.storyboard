@@ -40,7 +40,7 @@
                                         </collectionViewCellContentView>
                                         <size key="customSize" width="361" height="96"/>
                                         <connections>
-                                            <segue destination="guX-a9-voL" kind="presentation" identifier="pickSegue" id="THM-4W-Ged"/>
+                                            <segue destination="guX-a9-voL" kind="presentation" identifier="editReminder" id="THM-4W-Ged"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -111,6 +111,9 @@
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QfY-sX-bx9">
                                 <rect key="frame" x="20" y="20" width="51" height="45"/>
+                                <connections>
+                                    <segue destination="WJC-rM-U3f" kind="unwind" unwindAction="unwindSegueWithSegue:" id="sWJ-1K-ISO"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J5c-p6-0g9">
                                 <rect key="frame" x="124" y="688" width="166" height="74"/>

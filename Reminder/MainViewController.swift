@@ -38,30 +38,28 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
                 }
             })
         }
-        
-        func sendNotification(datePicker: UIDatePicker, reminder: Base.Reminder) {
-            let center = UNUserNotificationCenter.current()
-            center.delegate = self
-            
-            let content = UNMutableNotificationContent()
-            content.title = reminder.title
-            content.body = reminder.notes
-            content.categoryIdentifier = "category"
-            
-            let date = datePicker.calendar.dateComponents([.day, .hour, .minute], from: datePicker.date)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: date, repeats: false)
-            let request = UNNotificationRequest(identifier: reminder.guid, content: content, trigger: trigger)
-            
-            let snoozeAction = UNNotificationAction(identifier: "snooze", title: "Snooze", options: [])
-    //        let doneAction = UNNotificationAction(identifier: "done", title: "Done", options: [])
-            let category = UNNotificationCategory(identifier: "category", actions: [snoozeAction], intentIdentifiers: [], options: [])
-            center.setNotificationCategories([category])
-            center.add(request) {(error) in}
-        }
     
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                    didReceive response: UNNotificationResponse,
-                                    withCompletionHandler completionHandler: @escaping () -> Void) {
+    func sendNotification(datePicker: UIDatePicker, reminder: Base.Reminder) {
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+            
+        let content = UNMutableNotificationContent()
+        content.title = reminder.title
+        content.body = reminder.notes
+        content.categoryIdentifier = "category"
+        
+        let date = datePicker.calendar.dateComponents([.day, .hour, .minute], from: datePicker.date)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: date, repeats: false)
+        let request = UNNotificationRequest(identifier: reminder.guid, content: content, trigger: trigger)
+        
+        let snoozeAction = UNNotificationAction(identifier: "snooze", title: "Snooze", options: [])
+//        let doneAction = UNNotificationAction(identifier: "done", title: "Done", options: [])
+        let category = UNNotificationCategory(identifier: "category", actions: [snoozeAction], intentIdentifiers: [], options: [])
+        center.setNotificationCategories([category])
+        center.add(request) {(error) in}
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
             if response.actionIdentifier == "snooze" {
                 var dayComponent = DateComponents()
                 dayComponent.minute = 9
@@ -100,6 +98,28 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
             sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
         }
     }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        super.prepare(for: segue, sender: sender)
+        guard segue.identifier == "editReminder" else {return}
+        
+        guard let indexPath = (sender as? UIView)?.findCollectionViewIndexPath() else { return }
+        
+//        let indexPath = collectionView.indexPathsForSelectedItems!
+//        print(indexPath)
+//        let selectedIndexPath = selectedIndexPaths?.first
+//        print(selectedIndexPath)
+//        let reminder = Base.shared.info[indexPath.row]
+//        let selectedIndexPaths = collectionView.indexPathsForSelectedItems()
+//        let selectedIndexPath = selectedIndexPaths?.first
+//        let row = self.tableView?.indexPathForSelectedRow?.row ?? 0
+        let VC = segue.destination
+        let addingVC = VC as! AddingViewController
+//        addingVC.reminder = reminder
+        
+        
+    }
+    
+ 
 }
 
 extension MainViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -114,6 +134,10 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
         cell.set(reminder: reminder)
         return cell
     }
+    
+    
+    
+    
     
 }
 
