@@ -17,6 +17,12 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
         for i in 0 ..< Base.shared.info.count {
             print("Title: \(Base.shared.info[i].title) Notes: \(Base.shared.info[i].notes)")
         }
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(UINib(nibName: "ReminderCell", bundle: nil), forCellWithReuseIdentifier: "ReminderCell")
+        
+        checkNotificationSettings(center: UNUserNotificationCenter.current())
+        
     }
     
     func checkNotificationSettings(center: UNUserNotificationCenter) {
@@ -34,9 +40,7 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
         }
         
         func sendNotification(datePicker: UIDatePicker, reminder: Base.Reminder) {
-            
             let center = UNUserNotificationCenter.current()
-            
             center.delegate = self
             
             let content = UNMutableNotificationContent()
@@ -52,25 +56,41 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
     //        let doneAction = UNNotificationAction(identifier: "done", title: "Done", options: [])
             let category = UNNotificationCategory(identifier: "category", actions: [snoozeAction], intentIdentifiers: [], options: [])
             center.setNotificationCategories([category])
+            center.add(request) {(error) in}
+        }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                    didReceive response: UNNotificationResponse,
+                                    withCompletionHandler completionHandler: @escaping () -> Void) {
+            if response.actionIdentifier == "snooze" {
+                var dayComponent = DateComponents()
+                dayComponent.minute = 9
+                let theCalendar = Calendar.current
+                let nextDate = theCalendar.date(byAdding: dayComponent, to: Date())
+                let comps = Calendar.current.dateComponents([.day, .hour, .minute], from: nextDate!)
 
-            center.add(request) { (error) in }
+                let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+                let request = UNNotificationRequest(identifier: response.notification.request.identifier,
+                                                    content: response.notification.request.content, trigger: trigger)
+    //            print(response.notification.request.identifier)
+    //            print(response.notification.request.content)
+    //            print(comps)
+                center.add(request) {(error) in}
+            }
+            completionHandler()
         }
     
     @IBAction func unwindSegue(segue: UIStoryboardSegue) {
         guard segue.identifier == "saveSegue" else { return }
-
         let sourceViewController = segue.source as! AddingViewController
         var reminder = sourceViewController.reminder
-        
 
         if let selectedIndexPath = collectionView.indexPathsForSelectedItems {
-
             Base.shared.info.append(reminder)
             print(Base.shared.info)
             collectionView.reloadItems(at: selectedIndexPath)
             sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
         }
-
         else {
             reminder = Base.Reminder(title: reminder.title, notes: reminder.notes, guid: UUID().uuidString)
             let newIndexPath = IndexPath(item: Base.shared.info.count, section: 0)
@@ -80,9 +100,7 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
             sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
         }
     }
-    
 }
-
 
 extension MainViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
@@ -92,13 +110,10 @@ extension MainViewController: UICollectionViewDataSource, UICollectionViewDelega
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ReminderCell", for: indexPath) as! ReminderCell
-        
         let reminder = Base.shared.info[indexPath.item]
         cell.set(reminder: reminder)
         return cell
     }
-    
-    
     
 }
 

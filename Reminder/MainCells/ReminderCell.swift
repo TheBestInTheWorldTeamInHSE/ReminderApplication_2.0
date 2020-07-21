@@ -11,6 +11,7 @@ import UIKit
 class ReminderCell: UICollectionViewCell {
 
     @IBOutlet weak var reminderImage: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         

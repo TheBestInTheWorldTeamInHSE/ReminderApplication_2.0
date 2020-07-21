@@ -49,10 +49,16 @@ class AddingViewController: UIViewController, UNUserNotificationCenterDelegate {
         saveButton.isEnabled = titleLength ?? 0 > 0 && dateLength ?? 0 > 0
     }
     
+//    private func updateUI() {
+//        titleTextField.text = reminder.title
+//        notesTextField.text = reminder.notes
+//    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         updateSaveButtonState()
         createDatePicker()
+//        updateUI()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
