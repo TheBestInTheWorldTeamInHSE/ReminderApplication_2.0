@@ -19,27 +19,66 @@ class MainViewController: UIViewController, UNUserNotificationCenterDelegate {
         }
     }
     
+    func checkNotificationSettings(center: UNUserNotificationCenter) {
+                
+            center.getNotificationSettings(completionHandler: { (settings) in
+                if settings.authorizationStatus == .notDetermined {
+                    // Notification permission has not been asked yet, go for it!
+                    center.requestAuthorization(options: [.alert, .sound]) { (granted, error) in }
+                } else if settings.authorizationStatus == .denied {
+                    // Notification permission was previously denied, go to settings & privacy to re-enable
+                } else if settings.authorizationStatus == .authorized {
+                    // Notification permission was already granted
+                }
+            })
+        }
+        
+        func sendNotification(datePicker: UIDatePicker, reminder: Base.Reminder) {
+            
+            let center = UNUserNotificationCenter.current()
+            
+            center.delegate = self
+            
+            let content = UNMutableNotificationContent()
+            content.title = reminder.title
+            content.body = reminder.notes
+            content.categoryIdentifier = "category"
+            
+            let date = datePicker.calendar.dateComponents([.day, .hour, .minute], from: datePicker.date)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: date, repeats: false)
+            let request = UNNotificationRequest(identifier: reminder.guid, content: content, trigger: trigger)
+            
+            let snoozeAction = UNNotificationAction(identifier: "snooze", title: "Snooze", options: [])
+    //        let doneAction = UNNotificationAction(identifier: "done", title: "Done", options: [])
+            let category = UNNotificationCategory(identifier: "category", actions: [snoozeAction], intentIdentifiers: [], options: [])
+            center.setNotificationCategories([category])
+
+            center.add(request) { (error) in }
+        }
+    
     @IBAction func unwindSegue(segue: UIStoryboardSegue) {
         guard segue.identifier == "saveSegue" else { return }
 
         let sourceViewController = segue.source as! AddingViewController
         var reminder = sourceViewController.reminder
+        
 
-//        if let selectedIndexPath = collectionView.indexPathsForSelectedItems {
-//
-//            Base.shared.info[selectedIndexPath.] = reminder
-//            collectionView.reloadItems(at: selectedIndexPath)
-////            sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
-//            }
-//
-//        else {
-//            reminder = Base.Reminder(title: reminder.title, notes: reminder.notes, guid: UUID().uuidString)
-//            let newIndexPath = IndexPath(item: Base.shared.info.count, section: 0)
-//            Base.shared.info.append(reminder)
-//            collectionView.insertItems(at: [newIndexPath])
-//            collectionView.reloadData()
-////                sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
-//            }
+        if let selectedIndexPath = collectionView.indexPathsForSelectedItems {
+
+            Base.shared.info.append(reminder)
+            print(Base.shared.info)
+            collectionView.reloadItems(at: selectedIndexPath)
+            sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
+        }
+
+        else {
+            reminder = Base.Reminder(title: reminder.title, notes: reminder.notes, guid: UUID().uuidString)
+            let newIndexPath = IndexPath(item: Base.shared.info.count, section: 0)
+            Base.shared.info.append(reminder)
+            collectionView.insertItems(at: [newIndexPath])
+            collectionView.reloadData()
+            sendNotification(datePicker: sourceViewController.datePicker, reminder: reminder)
+        }
     }
     
 }

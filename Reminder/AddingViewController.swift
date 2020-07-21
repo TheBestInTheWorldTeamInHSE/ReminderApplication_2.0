@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AddingViewController: UIViewController {
+class AddingViewController: UIViewController, UNUserNotificationCenterDelegate {
     
     var reminder = Base.Reminder(title: "", notes: "", guid: "")
     public let defaults = UserDefaults.standard
@@ -26,7 +26,7 @@ class AddingViewController: UIViewController {
           datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
           let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapGestureDone))
           self.view.addGestureRecognizer(tapGesture)
-      }
+    }
     
     @objc func dateChanged() {
            let formatter = DateFormatter()
@@ -34,7 +34,7 @@ class AddingViewController: UIViewController {
            formatter.timeStyle = .short
            dateTextField.text = formatter.string(from: datePicker.date)
            updateSaveButtonState()
-       }
+    }
     
     @objc func tapGestureDone() {view.endEditing(true)}
     
